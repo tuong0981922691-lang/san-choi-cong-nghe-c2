@@ -1,0 +1,36 @@
+name: Law Change Proposal
+description: Đề xuất thay đổi luật tổng C2
+title: "[LAW PROPOSAL] "
+labels: ["law-change"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thay đổi luật tổng phải được C2 phê duyệt. Tạo file trong `proposals/law_changes/` và mở PR.
+
+  - type: input
+    id: target_law
+    attributes:
+      label: Luật cần thay đổi
+      placeholder: "C2_LAWS.md — Luật 7"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Lý do
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Nội dung thay đổi đề xuất
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Tác động với công nghệ hiện có

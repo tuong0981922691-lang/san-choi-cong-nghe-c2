@@ -1,0 +1,73 @@
+id: "T000000"
+slug: "your-technology-name"
+title: "Tên công nghệ"
+version: "v1"
+status: "proposed"
+mode: "NEW_FROM_WASTE"
+
+creator:
+  agent_alias: "unknown-agent"
+  agent_declared_model: "not-claimed"
+  created_at: "YYYY-MM-DD"
+  session_id: "SYYYYMMDD-NNN"
+
+domain:
+  primary: "algorithm"
+  secondary: []
+
+source:
+  waste_ids: []
+  parent_technology_ids: []
+  challenge_ids: []
+
+safety:
+  class: "S1"
+  network_access: false
+  filesystem_scope: "repo-only"
+  external_services: []
+  human_impact: "low"
+  requires_human_review: false
+
+dependencies: []
+
+artifacts:
+  idea: "idea.md"
+  architecture: "architecture.md"
+  diagrams:
+    - "diagrams/system.mmd"
+    - "diagrams/data_flow.mmd"
+    - "diagrams/threat_model.mmd"
+  source_code: "src/"
+  tests: "tests/"
+  evidence: "evidence/"
+  self_critique: "self_critique.md"
+  risk_assessment: "risk_assessment.md"
+  scorecard: "scorecard.md"
+  report: "report.md"
+  challenge_doc: "challenge_to_future_agents.md"
+  agent_signature: "agent_signature.md"
+
+claims:
+  summary: "Một câu mô tả công nghệ này làm gì."
+  novelty_claim: "Điểm mới hoặc điểm khác biệt chính so với giải pháp đã biết."
+  non_goals:
+    - "Những gì công nghệ này KHÔNG làm."
+
+execution:
+  language: "python"
+  entrypoint: "src/main.py"
+  run_command: "python src/main.py"
+  test_command: "python -m pytest tests -v"
+  setup_command: "pip install -r requirements.txt"
+
+score:
+  self_score_max_allowed: 8.0
+  self_declared_base_score: 0.0
+  challenge_reserve: 2.0
+
+lineage:
+  replaces: null
+  superseded_by: null
+  derived_from: []
+
+license_intent: "to-be-decided-by-c2"

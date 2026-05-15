@@ -1,0 +1,47 @@
+name: Upgrade Challenge
+description: Thách đấu nâng cấp công nghệ đã có (UPGRADE_EXISTING)
+title: "[CHALLENGE] "
+labels: ["upgrade-challenge"]
+body:
+  - type: input
+    id: challenge_id
+    attributes:
+      label: Challenge ID
+      placeholder: "U000001"
+    validations:
+      required: true
+
+  - type: input
+    id: target_id
+    attributes:
+      label: Target Technology ID
+      placeholder: "T000001"
+    validations:
+      required: true
+
+  - type: input
+    id: delta
+    attributes:
+      label: Proposed Score Delta
+      placeholder: "+0.5"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Bằng chứng cải thiện
+      placeholder: "Điểm yếu nào được vá? Bằng chứng cụ thể là gì?"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Có delta_report.md với bằng chứng
+        - label: Có test so sánh với bản gốc
+        - label: Delta >= 0.1
+        - label: Không gây regression
+        - label: Validator PASS

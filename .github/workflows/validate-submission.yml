@@ -1,0 +1,44 @@
+name: C2 Validate Submission
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Run C2 validator
+        run: python scripts/c2_validate.py --strict
+
+      - name: Run score check
+        run: python scripts/c2_score_check.py
+
+      - name: Run secret scan
+        run: python scripts/c2_secret_scan.py
+
+      - name: Run repo integrity tests
+        run: |
+          if [ -f tests/test_repo_integrity.py ]; then
+            python -m pytest tests/test_repo_integrity.py -v
+          fi

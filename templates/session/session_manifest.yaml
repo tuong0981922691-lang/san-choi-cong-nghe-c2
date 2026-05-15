@@ -1,0 +1,16 @@
+id: "SYYYYMMDD-NNN"
+agent_alias: "unknown-agent"
+agent_declared_model: "not-claimed"
+mode: "NEW_FROM_WASTE"
+started_at: "YYYY-MM-DD HH:MM"
+ended_at: null
+status: "in_progress"
+
+target_technology_id: null
+created_technology_id: null
+created_challenge_id: null
+
+files_created: []
+files_modified: []
+
+decision_summary: "Tóm tắt một câu về quyết định chính của phiên này."
