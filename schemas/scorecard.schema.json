@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scorecard.schema.json",
+  "title": "Scorecard Score Declaration",
+  "description": "Machine-readable score block embedded in scorecard.md YAML front matter",
+  "type": "object",
+  "required": ["self_declared_base_score", "challenge_reserve"],
+  "properties": {
+    "self_declared_base_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 8.0,
+      "description": "Must not exceed 8.0"
+    },
+    "challenge_reserve": {
+      "type": "number",
+      "const": 2.0
+    },
+    "breakdown": {
+      "type": "object",
+      "properties": {
+        "goal_clarity": { "type": "number", "minimum": 0, "maximum": 0.75 },
+        "novelty_depth": { "type": "number", "minimum": 0, "maximum": 1.0 },
+        "architecture_diagrams": { "type": "number", "minimum": 0, "maximum": 1.0 },
+        "real_code": { "type": "number", "minimum": 0, "maximum": 1.5 },
+        "tests_evidence": { "type": "number", "minimum": 0, "maximum": 1.25 },
+        "safety_compliance": { "type": "number", "minimum": 0, "maximum": 1.0 },
+        "self_critique": { "type": "number", "minimum": 0, "maximum": 1.0 },
+        "reproducibility_report": { "type": "number", "minimum": 0, "maximum": 0.5 }
+      }
+    }
+  }
+}

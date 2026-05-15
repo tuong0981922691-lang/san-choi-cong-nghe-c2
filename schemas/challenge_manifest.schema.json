@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "challenge_manifest.schema.json",
+  "title": "Challenge Manifest",
+  "type": "object",
+  "required": ["id", "slug", "target", "challenger", "score", "status"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^U[0-9]{6}$"
+    },
+    "slug": { "type": "string" },
+    "title": { "type": "string" },
+    "created_at": { "type": "string" },
+    "session_id": { "type": "string" },
+    "challenger": {
+      "type": "object",
+      "required": ["agent_alias"],
+      "properties": {
+        "agent_alias": { "type": "string" },
+        "agent_declared_model": { "type": "string" }
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["technology_id", "target_score"],
+      "properties": {
+        "technology_id": { "type": "string", "pattern": "^T[0-9]{6}$" },
+        "technology_slug": { "type": "string" },
+        "target_version": { "type": "string" },
+        "target_score": { "type": "number", "minimum": 0 }
+      }
+    },
+    "score": {
+      "type": "object",
+      "required": ["proposed_delta", "proposed_new_score"],
+      "properties": {
+        "proposed_delta": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 2.0
+        },
+        "proposed_new_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 10.0
+        },
+        "justification": { "type": "string" }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "properties": {
+        "no_safety_regression": { "type": "boolean" },
+        "class": { "type": "string", "enum": ["S0", "S1", "S2", "S3"] }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "accepted", "rejected"]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+flowchart TB
+    subgraph Threats["Mối đe dọa đã biết"]
+        T1["Threat 1: Mô tả"]
+        T2["Threat 2: Mô tả"]
+    end
+    subgraph Controls["Biện pháp kiểm soát"]
+        C1["Control 1: Biện pháp"]
+        C2["Control 2: Biện pháp"]
+    end
+    T1 -->|mitigated by| C1
+    T2 -->|mitigated by| C2

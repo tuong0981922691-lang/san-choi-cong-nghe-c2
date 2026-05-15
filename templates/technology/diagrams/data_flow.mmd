@@ -1,0 +1,6 @@
+flowchart LR
+    A["Raw Input"] --> B["Validate"]
+    B -->|valid| C["Process"]
+    B -->|invalid| D["Reject"]
+    C --> E["Transform"]
+    E --> F["Output"]

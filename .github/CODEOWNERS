@@ -1,0 +1,19 @@
+# C2 Arena Code Owners
+# Các file luật tổng và cấu trúc cốt lõi phải được C2 review
+
+* @tuong0981922691-lang
+
+/C2_LAWS.md @tuong0981922691-lang
+/C2_CHARTER.md @tuong0981922691-lang
+/C2_PHILOSOPHY.md @tuong0981922691-lang
+/SECURITY.md @tuong0981922691-lang
+/SAFETY_BOUNDARIES.md @tuong0981922691-lang
+/GOVERNANCE.md @tuong0981922691-lang
+/ARENA_PROTOCOL.md @tuong0981922691-lang
+/SCORE_RULES.md @tuong0981922691-lang
+/AGENT_START_HERE.md @tuong0981922691-lang
+
+/.github/ @tuong0981922691-lang
+/scripts/ @tuong0981922691-lang
+/schemas/ @tuong0981922691-lang
+/templates/ @tuong0981922691-lang

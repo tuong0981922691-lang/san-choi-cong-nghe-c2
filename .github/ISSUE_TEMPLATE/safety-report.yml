@@ -1,0 +1,36 @@
+name: Safety Report
+description: Báo cáo vấn đề bảo mật hoặc vi phạm luật tổng
+title: "[SAFETY] "
+labels: ["safety"]
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Mức độ nghiêm trọng
+      options:
+        - "Critical (S4 violation / data leak / active harm)"
+        - "High (serious safety boundary violation)"
+        - "Medium (score manipulation / fake code)"
+        - "Low (documentation issue)"
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Vị trí (file / directory)
+      placeholder: "vault/technologies/T000001-xyz/versions/v1/src/main.py"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả vấn đề
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Bằng chứng

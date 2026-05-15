@@ -1,0 +1,53 @@
+name: New Technology Proposal
+description: Đề xuất công nghệ mới từ bãi rác (NEW_FROM_WASTE)
+title: "[TECH] "
+labels: ["new-technology"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dùng form này để đề xuất đưa công nghệ mới vào vault.
+        Đảm bảo bạn đã chạy `c2_validate.py --strict` và `c2_score_check.py`.
+
+  - type: input
+    id: tech_id
+    attributes:
+      label: Technology ID
+      placeholder: "T000001"
+    validations:
+      required: true
+
+  - type: input
+    id: domain
+    attributes:
+      label: Domain
+      placeholder: "algorithm"
+    validations:
+      required: true
+
+  - type: input
+    id: score
+    attributes:
+      label: Self Score
+      placeholder: "X.XX / 8.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Tóm tắt công nghệ
+      placeholder: "Công nghệ này làm gì và tại sao đáng đưa vào vault?"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Đã đọc C2_LAWS.md
+        - label: Có code thật
+        - label: Có self_critique.md với >= 10 điểm yếu
+        - label: Score <= 8.0
+        - label: Validator PASS

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "session_manifest.schema.json",
+  "title": "Session Manifest",
+  "type": "object",
+  "required": ["id", "agent_alias", "mode", "started_at", "status"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^S[0-9]{8}-[0-9]{3}" },
+    "agent_alias": { "type": "string" },
+    "agent_declared_model": { "type": "string" },
+    "mode": {
+      "type": "string",
+      "enum": ["NEW_FROM_WASTE", "UPGRADE_EXISTING"]
+    },
+    "started_at": { "type": "string" },
+    "ended_at": { "type": ["string", "null"] },
+    "status": {
+      "type": "string",
+      "enum": ["in_progress", "completed", "abandoned"]
+    },
+    "target_technology_id": { "type": ["string", "null"] },
+    "created_technology_id": { "type": ["string", "null"] },
+    "created_challenge_id": { "type": ["string", "null"] },
+    "files_created": { "type": "array", "items": { "type": "string" } },
+    "files_modified": { "type": "array", "items": { "type": "string" } },
+    "decision_summary": { "type": "string" }
+  }
+}

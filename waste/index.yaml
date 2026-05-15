@@ -1,0 +1,12 @@
+last_updated: "2026-05-15"
+total_items: 1
+items:
+  - id: W000000
+    title: "Example waste item"
+    source_type: example
+    license_status: internal-example
+    hazard_tags:
+      - example
+    summary: "Ví dụ minh họa cấu trúc waste item. Không phải nguyên liệu thật."
+    allowed_use: template-only
+    path: waste/examples/W000000-example.yaml

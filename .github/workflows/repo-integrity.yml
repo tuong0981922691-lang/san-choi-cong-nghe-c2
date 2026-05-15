@@ -1,0 +1,37 @@
+name: C2 Repo Integrity
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate root structure
+        run: python scripts/c2_validate.py
+
+      - name: Score integrity check
+        run: python scripts/c2_score_check.py
+
+      - name: Secret scan
+        run: python scripts/c2_secret_scan.py
