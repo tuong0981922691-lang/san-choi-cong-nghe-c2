@@ -11,6 +11,7 @@ secrets/
 credentials/
 *_credentials*
 *_secret*
+!scripts/c2_secret_scan.py
 *_token*
 
 # Python

@@ -30,6 +30,9 @@ REQUIRED_ROOT_FILES = [
     "SECURITY.md",
     "SAFETY_BOUNDARIES.md",
     "GOVERNANCE.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    ".gitignore",
 ]
 
 REQUIRED_DIRS = [
@@ -38,12 +41,21 @@ REQUIRED_DIRS = [
     "vault/technologies",
     "vault/challenges",
     "vault/crowns",
-    "templates",
+    "templates/technology",
+    "templates/challenge",
+    "templates/session",
     "schemas",
     "scripts",
     "docs",
+    "docs/architecture",
+    "docs/philosophy",
     "proposals",
+    "proposals/law_changes",
+    "proposals/arena_upgrades",
+    "proposals/security_changes",
     "reports",
+    "tests",
+    ".github/workflows",
 ]
 
 REQUIRED_TECH_FILES = [
@@ -54,6 +66,20 @@ REQUIRED_TECH_FILES = [
     "risk_assessment.md",
     "scorecard.md",
     "report.md",
+    "challenge_to_future_agents.md",
+    "agent_signature.md",
+]
+
+REQUIRED_TECH_DIRS = [
+    "src",
+    "tests",
+    "evidence",
+]
+
+REQUIRED_CHALLENGE_FILES = [
+    "challenge_manifest.yaml",
+    "target_analysis.md",
+    "delta_report.md",
 ]
 
 FORBIDDEN_SAFETY_CLASS = "S4"
@@ -168,6 +194,14 @@ def check_technology_version(tech_name, version_dir: Path):
         else:
             err(f"{tech_name}/{version_dir.name}: thiếu {f}")
 
+    # Required directories inside technology version
+    for d in REQUIRED_TECH_DIRS:
+        path = version_dir / d
+        if path.is_dir():
+            ok(f"    {d}/")
+        else:
+            err(f"{tech_name}/{version_dir.name}: thiếu thư mục {d}/")
+
     # Check src/ not empty if technology is software
     src_dir = version_dir / "src"
     if src_dir.is_dir():
@@ -276,8 +310,27 @@ def scan_secrets(file_path: Path):
         pass
 
 
+def check_challenges():
+    print("\n=== Kiểm tra vault/challenges ===")
+    challenges_dir = REPO_ROOT / "vault" / "challenges"
+    if not challenges_dir.is_dir():
+        return
+    challenge_list = [d for d in challenges_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]
+    if not challenge_list:
+        ok("vault/challenges/ trống (bình thường với kho mới)")
+        return
+    for c in sorted(challenge_list):
+        print(f"\n  -- Challenge: {c.name} --")
+        for f in REQUIRED_CHALLENGE_FILES:
+            path = c / f
+            if path.exists():
+                ok(f"    {f}")
+            else:
+                err(f"{c.name}: thiếu {f}")
+
+
 def check_vault():
-    print("\n=== Kiểm tra vault ===")
+    print("\n=== Kiểm tra vault/technologies ===")
     tech_dir = REPO_ROOT / "vault" / "technologies"
     if not tech_dir.is_dir():
         return
@@ -328,6 +381,7 @@ def main():
     check_dirs()
     check_gitignore()
     check_vault()
+    check_challenges()
     check_waste_index()
     check_crown_registry()
 

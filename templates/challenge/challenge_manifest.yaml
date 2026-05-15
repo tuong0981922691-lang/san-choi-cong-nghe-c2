@@ -23,8 +23,8 @@ claimed_improvements:
 evidence_summary: "Tóm tắt bằng chứng trong delta_report.md"
 
 score:
-  proposed_delta: 0.0
-  proposed_new_score: 0.0
+  proposed_delta: 0.5         # Thay bằng giá trị thật: phải trong [0.1, 2.0]
+  proposed_new_score: 8.0    # target_score + proposed_delta, tối đa 10.0
   justification: "Lý do cụ thể cho điểm tăng"
 
 safety:
