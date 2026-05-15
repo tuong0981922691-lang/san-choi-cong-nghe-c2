@@ -10,9 +10,14 @@
 secrets/
 credentials/
 *_credentials*
-*_secret*
-!scripts/c2_secret_scan.py
-*_token*
+*_secret_key*
+*_secret_token*
+*.secrets
+.secrets
+secrets.json
+secrets.yaml
+*_token.txt
+*_token.json
 
 # Python
 __pycache__/
