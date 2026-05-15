@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-C2 Score Checker
-Kiểm tra điểm tự chấm không vượt 8.0 và challenge delta hợp lệ.
-Quét toàn bộ repo, không chỉ vault/.
+C2 Score Checker v2
+Quét toàn repo. Không cho lách điểm bằng string, 10/10, hoặc YAML lỗi.
 """
 
 import sys
@@ -22,6 +21,14 @@ MIN_CHALLENGE_DELTA = 0.1
 MAX_CHALLENGE_DELTA = 2.0
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "env"}
+
+FORBIDDEN_SELF_CLAIM_PATTERNS = [
+    (r'\b10\s*/\s*10\b', "10/10 tự thân"),
+    (r'\b10\.0\s*/\s*10\b', "10.0/10 tự thân"),
+    (r'\b100\s*/\s*100\b', "100/100 tự thân"),
+    (r'(?i)perfect\s+score', "perfect score"),
+    (r'(?i)ho[aà]n\s+h[aả]o\s+tuy[eệ]t\s+[dđ][oô]i', "hoàn hảo tuyệt đối"),
+]
 
 errors = []
 warnings = []
@@ -45,108 +52,110 @@ def should_skip(path: Path) -> bool:
     return any(part in SKIP_DIRS for part in path.parts)
 
 
-def extract_score_from_scorecard(path: Path):
-    """Tìm dòng 'self_declared_base_score:' trong scorecard.md"""
+def parse_score(value, field_name, context):
+    if value is None:
+        return None
     try:
-        content = path.read_text(encoding="utf-8")
-        match = re.search(r'self_declared_base_score\s*:\s*([0-9]+\.?[0-9]*)', content)
-        if match:
-            return float(match.group(1))
-    except Exception as e:
-        warn(f"Không đọc được {path}: {e}")
-    return None
+        return float(value)
+    except (TypeError, ValueError):
+        err(f"{context}: {field_name}={value!r} không phải số hợp lệ — vi phạm")
+        return None
 
 
 def check_manifest_file(manifest_path: Path):
-    """Kiểm tra một file manifest.yaml bất kỳ trong repo."""
     rel = manifest_path.relative_to(REPO_ROOT)
     try:
         data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            return
-
-        score_block = data.get("score", {})
-        if not score_block:
-            return
-
-        declared = score_block.get("self_declared_base_score", None)
-        reserve = score_block.get("challenge_reserve", None)
-
-        if declared is not None:
-            if declared > MAX_SELF_SCORE:
-                err(f"{rel}: self_declared_base_score={declared} > 8.0 — VI PHẠM LUẬT C2")
-            else:
-                ok(f"{rel}: base_score = {declared}/8.0")
-
-        if reserve is not None and reserve != REQUIRED_RESERVE:
-            err(f"{rel}: challenge_reserve={reserve} phải là 2.0")
-
-        safety = data.get("safety", {})
-        if isinstance(safety, dict) and safety.get("class") == "S4":
-            err(f"{rel}: safety class S4 bị cấm tuyệt đối")
-
     except Exception as e:
-        warn(f"Lỗi đọc manifest {rel}: {e}")
+        err(f"{rel}: YAML parse lỗi — {e}")
+        return
+    if not isinstance(data, dict):
+        return
+
+    score_block = data.get("score", {})
+    if not isinstance(score_block, dict) or not score_block:
+        return
+
+    declared = parse_score(score_block.get("self_declared_base_score"), "self_declared_base_score", rel)
+    reserve = score_block.get("challenge_reserve", None)
+
+    if declared is not None:
+        if declared > MAX_SELF_SCORE:
+            err(f"{rel}: self_declared_base_score={declared} > 8.0 — VI PHẠM LUẬT C2")
+        else:
+            ok(f"{rel}: base_score = {declared}/8.0")
+
+    if reserve is not None:
+        reserve_float = parse_score(reserve, "challenge_reserve", rel)
+        if reserve_float is not None and reserve_float != REQUIRED_RESERVE:
+            err(f"{rel}: challenge_reserve={reserve_float} phải là 2.0")
+
+    safety = data.get("safety", {})
+    if isinstance(safety, dict) and safety.get("class") == "S4":
+        err(f"{rel}: safety class S4 bị cấm tuyệt đối")
 
 
 def check_challenge_manifest_file(manifest_path: Path):
-    """Kiểm tra một file challenge_manifest.yaml."""
     rel = manifest_path.relative_to(REPO_ROOT)
     try:
         data = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            return
-
-        score_block = data.get("score", {})
-        if not score_block:
-            return
-
-        delta = score_block.get("proposed_delta", None)
-        new_score = score_block.get("proposed_new_score", None)
-
-        if delta is not None:
-            if delta < MIN_CHALLENGE_DELTA:
-                err(f"{rel}: proposed_delta={delta} < 0.1 — không đủ để lật ngôi")
-            elif delta > MAX_CHALLENGE_DELTA:
-                err(f"{rel}: proposed_delta={delta} > 2.0 — vượt giới hạn thách thức")
-            else:
-                ok(f"{rel}: delta = +{delta}")
-
-            delta_report = manifest_path.parent / "delta_report.md"
-            if not delta_report.exists():
-                err(f"{rel}: có proposed_delta nhưng thiếu delta_report.md")
-
-        if new_score is not None and new_score > 10.0:
-            err(f"{rel}: proposed_new_score={new_score} > 10.0")
-
     except Exception as e:
-        warn(f"Lỗi đọc challenge manifest {rel}: {e}")
+        err(f"{rel}: YAML parse lỗi — {e}")
+        return
+    if not isinstance(data, dict):
+        return
+
+    score_block = data.get("score", {})
+    if not isinstance(score_block, dict) or not score_block:
+        return
+
+    delta = parse_score(score_block.get("proposed_delta"), "proposed_delta", rel)
+    new_score = parse_score(score_block.get("proposed_new_score"), "proposed_new_score", rel)
+
+    if delta is not None:
+        if delta < MIN_CHALLENGE_DELTA:
+            err(f"{rel}: proposed_delta={delta} < 0.1 — không đủ để lật ngôi")
+        elif delta > MAX_CHALLENGE_DELTA:
+            err(f"{rel}: proposed_delta={delta} > 2.0 — vượt giới hạn thách thức")
+        else:
+            ok(f"{rel}: delta = +{delta}")
+
+        delta_report = manifest_path.parent / "delta_report.md"
+        if delta > 0 and not delta_report.exists():
+            err(f"{rel}: có proposed_delta > 0 nhưng thiếu delta_report.md")
+
+    if new_score is not None and new_score > 10.0:
+        err(f"{rel}: proposed_new_score={new_score} > 10.0")
 
 
 def check_scorecard_file(scorecard_path: Path):
-    """Kiểm tra một file scorecard.md."""
     rel = scorecard_path.relative_to(REPO_ROOT)
-    score = extract_score_from_scorecard(scorecard_path)
-    if score is None:
-        return
-
-    if score > MAX_SELF_SCORE:
-        err(f"{rel}: khai báo {score} > 8.0 — VI PHẠM LUẬT C2")
-    else:
-        ok(f"{rel}: score = {score}/8.0")
-
     try:
         content = scorecard_path.read_text(encoding="utf-8")
-        if re.search(r'\b10\s*/\s*10\b|\b10\.0\s*/\s*10\b', content):
-            first_200 = content.lower()[:200]
-            if "challenge" not in first_200 and "example" not in first_200 and "template" not in first_200:
-                err(f"{rel}: chứa '10/10' như điểm tự thân — vi phạm")
-    except Exception:
-        pass
+    except Exception as e:
+        warn(f"Không đọc được {rel}: {e}")
+        return
+
+    match = re.search(r'self_declared_base_score\s*:\s*([0-9]+\.?[0-9]*)', content)
+    if match:
+        score = parse_score(match.group(1), "self_declared_base_score", rel)
+        if score is not None:
+            if score > MAX_SELF_SCORE:
+                err(f"{rel}: khai báo {score} > 8.0 — VI PHẠM LUẬT C2")
+            else:
+                ok(f"{rel}: score = {score}/8.0")
+
+    first_300 = content.lower()[:300]
+    is_law_doc = any(kw in first_300 for kw in ["forbidden", "bị cấm", "vi phạm", "không được", "example", "template"])
+
+    for pattern, label in FORBIDDEN_SELF_CLAIM_PATTERNS:
+        if re.search(pattern, content):
+            if not is_law_doc:
+                err(f"{rel}: chứa '{label}' như điểm tự thân — vi phạm")
 
 
 def scan_repo():
-    print("\n=== Quét toàn bộ repo ===")
+    print("\n=== Quét toàn bộ repo (full-repo scan) ===")
     manifests_found = 0
     challenges_found = 0
     scorecards_found = 0
@@ -172,7 +181,7 @@ def scan_repo():
 
 def main():
     print("=" * 60)
-    print("  C2 SCORE CHECKER (full-repo scan)")
+    print("  C2 SCORE CHECKER v2 (full-repo, anti-lach)")
     print("=" * 60)
 
     scan_repo()

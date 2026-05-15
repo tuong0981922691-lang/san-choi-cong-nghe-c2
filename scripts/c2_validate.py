@@ -4,7 +4,6 @@ C2 Arena Validator
 Kiểm định cấu trúc repo và submission theo luật C2.
 """
 
-import os
 import sys
 import re
 import yaml
@@ -32,30 +31,54 @@ REQUIRED_ROOT_FILES = [
     "GOVERNANCE.md",
     "CONTRIBUTING.md",
     "CODE_OF_CONDUCT.md",
+    "LICENSE_DECISION.md",
     ".gitignore",
 ]
 
 REQUIRED_DIRS = [
+    ".github",
+    ".github/workflows",
+    ".github/ISSUE_TEMPLATE",
+    "docs",
+    "docs/architecture",
+    "docs/philosophy",
     "waste",
+    "waste/inbox",
+    "waste/normalized",
+    "waste/quarantine",
     "arena",
+    "arena/active",
+    "arena/sessions",
+    "vault",
     "vault/technologies",
     "vault/challenges",
     "vault/crowns",
+    "vault/retired",
+    "templates",
     "templates/technology",
     "templates/challenge",
     "templates/session",
     "schemas",
     "scripts",
-    "docs",
-    "docs/architecture",
-    "docs/philosophy",
     "proposals",
     "proposals/law_changes",
     "proposals/arena_upgrades",
     "proposals/security_changes",
     "reports",
     "tests",
-    ".github/workflows",
+]
+
+REQUIRED_DOC_FILES = [
+    "docs/architecture/system-overview.md",
+    "docs/architecture/threat-model.md",
+    "docs/architecture/repository-map.md",
+    "docs/architecture/data-flow.md",
+    "docs/philosophy/c2-waste-to-gold.md",
+    "docs/philosophy/look-up-to-future-ai.md",
+    "docs/philosophy/ego-vs-proof.md",
+    "docs/glossary.md",
+    "docs/faq.md",
+    "reports/FOUNDATION_SUMMARY.md",
 ]
 
 REQUIRED_TECH_FILES = [
@@ -71,6 +94,7 @@ REQUIRED_TECH_FILES = [
 ]
 
 REQUIRED_TECH_DIRS = [
+    "diagrams",
     "src",
     "tests",
     "evidence",
@@ -79,7 +103,46 @@ REQUIRED_TECH_DIRS = [
 REQUIRED_CHALLENGE_FILES = [
     "challenge_manifest.yaml",
     "target_analysis.md",
+    "upgrade_plan.md",
     "delta_report.md",
+    "self_critique.md",
+    "risk_assessment.md",
+    "report.md",
+]
+
+REQUIRED_CHALLENGE_DIRS = [
+    "src",
+    "tests",
+    "evidence",
+]
+
+REQUIRED_TEMPLATE_TECH_FILES = [
+    "manifest.yaml",
+    "idea.md",
+    "architecture.md",
+    "self_critique.md",
+    "risk_assessment.md",
+    "scorecard.md",
+    "report.md",
+    "challenge_to_future_agents.md",
+    "agent_signature.md",
+]
+
+REQUIRED_TEMPLATE_CHALLENGE_FILES = [
+    "challenge_manifest.yaml",
+    "target_analysis.md",
+    "upgrade_plan.md",
+    "delta_report.md",
+    "self_critique.md",
+    "risk_assessment.md",
+    "report.md",
+]
+
+REQUIRED_TEMPLATE_SESSION_FILES = [
+    "session_manifest.yaml",
+    "working_notes.md",
+    "decision_log.md",
+    "REPORT_TO_C2.md",
 ]
 
 FORBIDDEN_SAFETY_CLASS = "S4"
@@ -101,6 +164,8 @@ SECRET_PATTERNS = [
     r'AKIA[0-9A-Z]{16}',
     r'-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----',
 ]
+
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "env"}
 
 errors = []
 warnings = []
@@ -140,14 +205,24 @@ def check_dirs():
             err(f"Thiếu thư mục: {d}/")
 
 
+def check_doc_files():
+    print("\n=== Kiểm tra doc files bắt buộc ===")
+    for f in REQUIRED_DOC_FILES:
+        path = REPO_ROOT / f
+        if path.exists():
+            ok(f"{f}")
+        else:
+            err(f"Thiếu doc file bắt buộc: {f}")
+
+
 def check_gitignore():
     print("\n=== Kiểm tra .gitignore ===")
     gi = REPO_ROOT / ".gitignore"
     if not gi.exists():
-        warn(".gitignore không tồn tại")
+        err(".gitignore không tồn tại")
         return
     content = gi.read_text(encoding="utf-8")
-    for pattern in [".env", "*.key", "*.pem", "__pycache__", ".venv", "node_modules"]:
+    for pattern in [".env", "*.key", "*.pem", "__pycache__", ".venv", "node_modules", ".idea/"]:
         if pattern in content:
             ok(f".gitignore có: {pattern}")
         else:
@@ -159,19 +234,77 @@ def load_yaml_file(path):
         with open(path, encoding="utf-8") as f:
             return yaml.safe_load(f)
     except Exception as e:
-        err(f"Không đọc được YAML: {path} — {e}")
+        err(f"YAML parse lỗi: {path} — {e}")
         return None
+
+
+def load_json_file(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        err(f"JSON parse lỗi: {path} — {e}")
+        return None
+
+
+def check_all_yaml_json():
+    print("\n=== Kiểm tra YAML/JSON parse toàn repo ===")
+    count_ok = 0
+    for item in sorted(REPO_ROOT.rglob("*")):
+        if not item.is_file():
+            continue
+        if any(part in SKIP_DIRS for part in item.parts):
+            continue
+        if item.suffix in (".yaml", ".yml"):
+            try:
+                yaml.safe_load(item.read_text(encoding="utf-8"))
+                count_ok += 1
+            except Exception as e:
+                err(f"YAML parse lỗi: {item.relative_to(REPO_ROOT)} — {e}")
+        elif item.suffix == ".json":
+            try:
+                json.loads(item.read_text(encoding="utf-8"))
+                count_ok += 1
+            except Exception as e:
+                err(f"JSON parse lỗi: {item.relative_to(REPO_ROOT)} — {e}")
+    ok(f"Đã parse {count_ok} file YAML/JSON không lỗi")
+
+
+def check_templates():
+    print("\n=== Kiểm tra templates ===")
+    tech_tmpl = REPO_ROOT / "templates" / "technology"
+    for f in REQUIRED_TEMPLATE_TECH_FILES:
+        p = tech_tmpl / f
+        if p.exists():
+            ok(f"templates/technology/{f}")
+        else:
+            err(f"templates/technology: thiếu {f}")
+
+    ch_tmpl = REPO_ROOT / "templates" / "challenge"
+    for f in REQUIRED_TEMPLATE_CHALLENGE_FILES:
+        p = ch_tmpl / f
+        if p.exists():
+            ok(f"templates/challenge/{f}")
+        else:
+            err(f"templates/challenge: thiếu {f}")
+
+    sess_tmpl = REPO_ROOT / "templates" / "session"
+    for f in REQUIRED_TEMPLATE_SESSION_FILES:
+        p = sess_tmpl / f
+        if p.exists():
+            ok(f"templates/session/{f}")
+        else:
+            err(f"templates/session: thiếu {f}")
 
 
 def check_technology(tech_dir: Path):
     print(f"\n  -- Technology: {tech_dir.name} --")
-
-    # Check lineage.yaml
     lineage = tech_dir / "lineage.yaml"
     if not lineage.exists():
         warn(f"{tech_dir.name}: thiếu lineage.yaml")
+    else:
+        load_yaml_file(lineage)
 
-    # Find versions
     versions_dir = tech_dir / "versions"
     if not versions_dir.is_dir():
         err(f"{tech_dir.name}: thiếu thư mục versions/")
@@ -186,7 +319,6 @@ def check_technology(tech_dir: Path):
 def check_technology_version(tech_name, version_dir: Path):
     print(f"    -- Version: {version_dir.name} --")
 
-    # Required files
     for f in REQUIRED_TECH_FILES:
         path = version_dir / f
         if path.exists():
@@ -194,7 +326,6 @@ def check_technology_version(tech_name, version_dir: Path):
         else:
             err(f"{tech_name}/{version_dir.name}: thiếu {f}")
 
-    # Required directories inside technology version
     for d in REQUIRED_TECH_DIRS:
         path = version_dir / d
         if path.is_dir():
@@ -202,31 +333,25 @@ def check_technology_version(tech_name, version_dir: Path):
         else:
             err(f"{tech_name}/{version_dir.name}: thiếu thư mục {d}/")
 
-    # Check src/ not empty if technology is software
     src_dir = version_dir / "src"
     if src_dir.is_dir():
         files = [f for f in src_dir.iterdir() if f.name != ".gitkeep"]
         if not files:
-            warn(f"{tech_name}/{version_dir.name}: src/ trống — cần code thật hoặc khai báo là S0/prototype")
+            warn(f"{tech_name}/{version_dir.name}: src/ trống — cần code thật")
     else:
         warn(f"{tech_name}/{version_dir.name}: không có src/")
 
-    # Check tests or evidence not empty
     tests_dir = version_dir / "tests"
     evidence_dir = version_dir / "evidence"
-    tests_files = list(tests_dir.iterdir()) if tests_dir.is_dir() else []
-    evidence_files = list(evidence_dir.iterdir()) if evidence_dir.is_dir() else []
-    tests_real = [f for f in tests_files if f.name not in (".gitkeep", "README.md")]
-    evidence_real = [f for f in evidence_files if f.name not in (".gitkeep", "README.md")]
+    tests_real = [f for f in tests_dir.iterdir() if f.name not in (".gitkeep", "README.md")] if tests_dir.is_dir() else []
+    evidence_real = [f for f in evidence_dir.iterdir() if f.name not in (".gitkeep", "README.md")] if evidence_dir.is_dir() else []
     if not tests_real and not evidence_real:
         warn(f"{tech_name}/{version_dir.name}: tests/ và evidence/ đều trống — cần bằng chứng")
 
-    # Check manifest
     manifest_path = version_dir / "manifest.yaml"
     if manifest_path.exists():
         check_manifest(tech_name, version_dir.name, manifest_path)
 
-    # Check self_critique has enough content
     sc_path = version_dir / "self_critique.md"
     if sc_path.exists():
         content = sc_path.read_text(encoding="utf-8")
@@ -236,13 +361,11 @@ def check_technology_version(tech_name, version_dir: Path):
         else:
             ok(f"    self_critique.md có {len(numbered)} điểm")
 
-    # Scan for forbidden patterns in src/
     if src_dir.is_dir():
         for src_file in src_dir.rglob("*"):
             if src_file.is_file() and src_file.suffix in (".py", ".js", ".ts", ".sh", ".rb"):
                 scan_forbidden_patterns(src_file)
 
-    # Scan for secrets
     for candidate in version_dir.rglob("*"):
         if candidate.is_file() and candidate.suffix in (".py", ".js", ".ts", ".yaml", ".json", ".env", ".sh", ".md"):
             scan_secrets(candidate)
@@ -253,7 +376,6 @@ def check_manifest(tech_name, version, manifest_path: Path):
     if not data:
         return
 
-    # Safety class S4 forbidden
     safety = data.get("safety", {})
     sc = safety.get("class", "")
     if sc == FORBIDDEN_SAFETY_CLASS:
@@ -261,9 +383,13 @@ def check_manifest(tech_name, version, manifest_path: Path):
     else:
         ok(f"    safety.class = {sc}")
 
-    # Score check
     score = data.get("score", {})
     declared = score.get("self_declared_base_score", 0)
+    try:
+        declared = float(declared)
+    except (TypeError, ValueError):
+        err(f"{tech_name}/{version}: self_declared_base_score không phải số: {declared!r}")
+        return
     if declared > 8.0:
         err(f"{tech_name}/{version}: self_declared_base_score={declared} vượt giới hạn 8.0")
     else:
@@ -273,7 +399,6 @@ def check_manifest(tech_name, version, manifest_path: Path):
     if reserve != 2.0:
         err(f"{tech_name}/{version}: challenge_reserve phải là 2.0, hiện tại={reserve}")
 
-    # Domain check
     domain = data.get("domain", {})
     valid_domains = ["algorithm", "ai-tooling", "developer-tool", "data-system",
                      "simulation", "security-defense", "creative-media-safe",
@@ -282,7 +407,6 @@ def check_manifest(tech_name, version, manifest_path: Path):
     if primary not in valid_domains:
         err(f"{tech_name}/{version}: domain.primary='{primary}' không hợp lệ")
 
-    # Required fields
     for field in ["id", "slug", "title", "version", "status", "mode", "claims"]:
         if field not in data:
             warn(f"{tech_name}/{version}: manifest thiếu field '{field}'")
@@ -327,6 +451,12 @@ def check_challenges():
                 ok(f"    {f}")
             else:
                 err(f"{c.name}: thiếu {f}")
+        for d in REQUIRED_CHALLENGE_DIRS:
+            path = c / d
+            if path.is_dir():
+                ok(f"    {d}/")
+            else:
+                err(f"{c.name}: thiếu thư mục {d}/")
 
 
 def check_vault():
@@ -334,12 +464,10 @@ def check_vault():
     tech_dir = REPO_ROOT / "vault" / "technologies"
     if not tech_dir.is_dir():
         return
-
     tech_list = [d for d in tech_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]
     if not tech_list:
         ok("vault/technologies/ trống (bình thường với kho mới)")
         return
-
     for tech in sorted(tech_list):
         check_technology(tech)
 
@@ -370,16 +498,18 @@ def check_crown_registry():
 def main():
     parser = argparse.ArgumentParser(description="C2 Arena Validator")
     parser.add_argument("--strict", action="store_true", help="Fail on warnings too")
-    parser.add_argument("--tech", type=str, help="Chỉ kiểm tra technology cụ thể (ID)")
     args = parser.parse_args()
 
     print("=" * 60)
-    print("  C2 ARENA VALIDATOR")
+    print("  C2 ARENA VALIDATOR v2")
     print("=" * 60)
 
     check_root_files()
     check_dirs()
+    check_doc_files()
     check_gitignore()
+    check_all_yaml_json()
+    check_templates()
     check_vault()
     check_challenges()
     check_waste_index()
