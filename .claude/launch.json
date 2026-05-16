@@ -1,0 +1,41 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pytest — full test suite",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "pytest", "tests/", "-v"],
+      "port": null
+    },
+    {
+      "name": "c2_validate — strict repo validator",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/c2_validate.py", "--strict"],
+      "port": null
+    },
+    {
+      "name": "c2_score_check — score rule checker",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/c2_score_check.py"],
+      "port": null
+    },
+    {
+      "name": "c2_secret_scan — secret scanner",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/c2_secret_scan.py"],
+      "port": null
+    },
+    {
+      "name": "c2_parse_check — YAML/JSON parse checker",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/c2_parse_check.py"],
+      "port": null
+    },
+    {
+      "name": "c2_index — rebuild vault/waste index",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/c2_index.py"],
+      "port": null
+    }
+  ]
+}
