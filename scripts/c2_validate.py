@@ -441,6 +441,28 @@ def check_manifest(tech_name, version, manifest_path: Path):
     reserve = score.get("challenge_reserve", None)
     if reserve != 2.0:
         err(f"{tech_name}/{version}: challenge_reserve phải là 2.0, hiện tại={reserve}")
+    else:
+        ok(f"    challenge_reserve = 2.0")
+
+    # L — Lineage + waste_sources bắt buộc cho NEW_FROM_WASTE
+    mode = data.get("mode", "")
+    if mode == "NEW_FROM_WASTE":
+        lineage = data.get("lineage", {})
+        if not lineage:
+            err(f"{tech_name}/{version}: mode=NEW_FROM_WASTE nhưng thiếu 'lineage' block")
+        waste_sources = lineage.get("waste_sources", []) if isinstance(lineage, dict) else []
+        if not waste_sources:
+            warn(f"{tech_name}/{version}: mode=NEW_FROM_WASTE nên khai báo lineage.waste_sources")
+        else:
+            ok(f"    lineage.waste_sources = {waste_sources}")
+    elif mode == "UPGRADE_EXISTING":
+        lineage = data.get("lineage", {})
+        parent = lineage.get("replaces", None) if isinstance(lineage, dict) else None
+        if not parent:
+            warn(f"{tech_name}/{version}: mode=UPGRADE_EXISTING nên có lineage.replaces chỉ rõ ID được nâng cấp")
+    else:
+        if mode:
+            err(f"{tech_name}/{version}: mode='{mode}' không hợp lệ — chỉ chấp nhận NEW_FROM_WASTE / UPGRADE_EXISTING")
 
     domain = data.get("domain", {})
     valid_domains = ["algorithm", "ai-tooling", "developer-tool", "data-system",
@@ -505,6 +527,28 @@ def check_challenges():
             cm_data = load_yaml_file(cm)
             if cm_data:
                 validate_against_schema(cm_data, "challenge_manifest.schema.json", c.name)
+                # U — Cross-check: target technology_id phải tồn tại trong vault
+                target = cm_data.get("target", {})
+                tech_id = target.get("technology_id", "") if isinstance(target, dict) else ""
+                if tech_id:
+                    tech_path = REPO_ROOT / "vault" / "technologies"
+                    matching = [d for d in tech_path.iterdir() if d.is_dir() and d.name.startswith(tech_id)] if tech_path.is_dir() else []
+                    if not matching:
+                        err(f"{c.name}: target.technology_id='{tech_id}' không tìm thấy trong vault/technologies/")
+                    else:
+                        ok(f"    target tech '{tech_id}' tồn tại trong vault")
+                # U — delta range check
+                score_block = cm_data.get("score", {})
+                delta = score_block.get("proposed_delta")
+                if delta is not None:
+                    try:
+                        delta_f = float(delta)
+                        if not (0.1 <= delta_f <= 2.0):
+                            err(f"{c.name}: proposed_delta={delta_f} ngoài giới hạn [0.1, 2.0]")
+                        else:
+                            ok(f"    proposed_delta={delta_f} hợp lệ")
+                    except (TypeError, ValueError):
+                        err(f"{c.name}: proposed_delta='{delta}' không phải số")
 
 
 def check_vault():
@@ -521,7 +565,7 @@ def check_vault():
 
 
 def check_waste_index():
-    print("\n=== Kiểm tra waste index ===")
+    print("\n=== Kiểm tra waste index + waste items (H) ===")
     idx = REPO_ROOT / "waste" / "index.yaml"
     if not idx.exists():
         warn("waste/index.yaml không tồn tại")
@@ -530,6 +574,43 @@ def check_waste_index():
     if data is None:
         return
     ok("waste/index.yaml hợp lệ")
+
+    # H — Validate từng waste item file theo waste_item.schema.json
+    waste_items_checked = 0
+    for item_file in sorted((REPO_ROOT / "waste").rglob("*.yaml")):
+        if item_file.name in ("index.yaml",):
+            continue
+        if any(part in SKIP_DIRS for part in item_file.parts):
+            continue
+        item_data = load_yaml_file(item_file)
+        if item_data and isinstance(item_data, dict) and "id" in item_data:
+            rel = item_file.relative_to(REPO_ROOT)
+            validate_against_schema(item_data, "waste_item.schema.json", str(rel))
+            waste_items_checked += 1
+    if waste_items_checked:
+        ok(f"Đã validate {waste_items_checked} waste item(s) theo schema")
+
+
+def check_arena_sessions():
+    """R — Mọi session không trống trong arena/sessions/ phải có REPORT_TO_C2.md."""
+    print("\n=== Kiểm tra arena/sessions (R) ===")
+    sessions_dir = REPO_ROOT / "arena" / "sessions"
+    if not sessions_dir.is_dir():
+        return
+    session_list = [d for d in sessions_dir.iterdir()
+                    if d.is_dir() and not d.name.startswith(".")]
+    if not session_list:
+        ok("arena/sessions/ trống (bình thường)")
+        return
+    for session in sorted(session_list):
+        files = [f for f in session.iterdir() if f.name != ".gitkeep"]
+        if not files:
+            continue  # empty session dir
+        report = session / "REPORT_TO_C2.md"
+        if not report.exists():
+            err(f"arena/sessions/{session.name}: có files nhưng thiếu REPORT_TO_C2.md")
+        else:
+            ok(f"arena/sessions/{session.name}: REPORT_TO_C2.md có")
 
 
 def check_crown_registry():
@@ -561,6 +642,7 @@ def main():
     check_vault()
     check_challenges()
     check_waste_index()
+    check_arena_sessions()
     check_crown_registry()
 
     print("\n" + "=" * 60)

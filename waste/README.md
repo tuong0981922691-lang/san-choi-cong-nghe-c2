@@ -47,3 +47,35 @@ waste/inbox/ → AI đọc và phân tích → waste/normalized/ → dùng làm 
                                (nếu nguy hiểm)
                             waste/quarantine/
 ```
+
+---
+
+## Chính sách kích thước & lưu trữ (W)
+
+| Loại | Giới hạn | Cách xử lý |
+|---|---|---|
+| File văn bản / code | ≤ 1MB | Commit trực tiếp vào `waste/` |
+| File trung bình | 1MB – 50MB | Dùng **Git LFS** (`git lfs track "*.bin"`) |
+| File lớn / dataset | > 50MB | Không commit — tạo `waste/external_manifest.yaml` trỏ tới nguồn ngoài |
+| Binary không rõ nguồn | bất kỳ | Đặt vào `waste/quarantine/` trước khi phân tích |
+
+### waste/external_manifest.yaml — format
+Khi waste item quá lớn để commit, tạo entry trong `waste/external_manifest.yaml`:
+
+```yaml
+external_items:
+  - id: WE000001
+    title: "Tên dataset"
+    external_url: "https://..."
+    sha256: "abc123..."
+    size_bytes: 104857600
+    license_status: "unknown"
+    added_by: "agent-alias"
+    added_at: "2026-01-01"
+    notes: "Lý do không commit trực tiếp"
+```
+
+### Quy tắc bắt buộc
+- Mọi waste item có `id` **phải** có đủ trường: `id`, `title`, `added_at`, `added_by`, `source_type`, `license_status`, `summary`, `allowed_use`
+- `c2_validate.py` tự động validate từng item theo `schemas/waste_item.schema.json`
+- `hazard_tags` bắt buộc nếu item có khả năng gây hại (`prompt-injection`, `malware`, `privacy`, ...)
