@@ -32,22 +32,36 @@ SECRET_PATTERNS = [
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "env"}
 SKIP_FILES = {"c2_secret_scan.py"}
 
-TEXT_EXTENSIONS = {
-    ".py", ".js", ".ts", ".json", ".yaml", ".yml", ".env",
-    ".sh", ".bash", ".md", ".txt", ".cfg", ".ini", ".toml",
-    ".html", ".css", ".jsx", ".tsx", ".rb", ".go", ".rs", ".java"
-}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 found = []
 
 
+def is_binary(raw_bytes: bytes) -> bool:
+    """Trả về True nếu file là binary (có byte null \\x00)."""
+    return b"\x00" in raw_bytes
+
+
 def scan_file(path: Path):
+    """Quét file tìm secret. Không lọc theo đuôi file — chỉ bỏ qua binary và >5MB."""
     if path.name in SKIP_FILES:
         return
-    if path.suffix.lower() not in TEXT_EXTENSIONS:
-        return
+    # Bỏ qua file quá lớn
     try:
-        content = path.read_text(encoding="utf-8", errors="ignore")
+        if path.stat().st_size > MAX_FILE_SIZE:
+            return
+    except Exception:
+        return
+    # Đọc raw bytes để check binary
+    try:
+        raw = path.read_bytes()
+    except Exception:
+        return
+    if is_binary(raw):
+        return
+    # Decode text để quét patterns
+    try:
+        content = raw.decode("utf-8", errors="ignore")
         for pattern, label in SECRET_PATTERNS:
             matches = re.findall(pattern, content)
             if matches:

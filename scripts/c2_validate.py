@@ -15,6 +15,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
 import json
 import argparse
 from pathlib import Path
+import jsonschema
 
 REPO_ROOT = Path(__file__).parent.parent
 
@@ -150,6 +151,10 @@ FORBIDDEN_SAFETY_CLASS = "S4"
 FORBIDDEN_PATTERNS = [
     r'os\.system\s*\(',
     r'subprocess\.call\s*\(',
+    r'subprocess\.run\s*\(',
+    r'subprocess\.Popen\s*\(',
+    r'os\.popen\s*\(',
+    r'pty\.spawn\s*\(',
     r'eval\s*\(',
     r'exec\s*\(',
     r'__import__\s*\(',
@@ -227,6 +232,41 @@ def check_gitignore():
             ok(f".gitignore có: {pattern}")
         else:
             warn(f".gitignore thiếu: {pattern}")
+
+
+_schema_cache: dict = {}
+
+
+def load_schema(schema_name: str):
+    """Load và cache JSON schema từ thư mục schemas/."""
+    if schema_name in _schema_cache:
+        return _schema_cache[schema_name]
+    schema_path = REPO_ROOT / "schemas" / schema_name
+    if not schema_path.exists():
+        warn(f"Schema file không tồn tại: schemas/{schema_name}")
+        return None
+    data = load_json_file(schema_path)
+    if data is not None:
+        _schema_cache[schema_name] = data
+    return data
+
+
+def validate_against_schema(data: dict, schema_name: str, context: str) -> bool:
+    """Validate dict data theo JSON schema. Trả về True nếu hợp lệ."""
+    schema = load_schema(schema_name)
+    if schema is None:
+        warn(f"{context}: không load được schema {schema_name} — bỏ qua validate")
+        return True
+    try:
+        jsonschema.validate(instance=data, schema=schema)
+        ok(f"    schema OK ({schema_name})")
+        return True
+    except jsonschema.ValidationError as e:
+        err(f"{context}: vi phạm schema '{schema_name}' — {e.message} (path: {list(e.absolute_path)})")
+        return False
+    except jsonschema.SchemaError as e:
+        err(f"{context}: lỗi schema '{schema_name}' — {e.message}")
+        return False
 
 
 def load_yaml_file(path):
@@ -376,6 +416,9 @@ def check_manifest(tech_name, version, manifest_path: Path):
     if not data:
         return
 
+    # Schema validation thực sự
+    validate_against_schema(data, "technology_manifest.schema.json", f"{tech_name}/{version}")
+
     safety = data.get("safety", {})
     sc = safety.get("class", "")
     if sc == FORBIDDEN_SAFETY_CLASS:
@@ -457,6 +500,11 @@ def check_challenges():
                 ok(f"    {d}/")
             else:
                 err(f"{c.name}: thiếu thư mục {d}/")
+        cm = c / "challenge_manifest.yaml"
+        if cm.exists():
+            cm_data = load_yaml_file(cm)
+            if cm_data:
+                validate_against_schema(cm_data, "challenge_manifest.schema.json", c.name)
 
 
 def check_vault():
