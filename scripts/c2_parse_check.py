@@ -9,6 +9,11 @@ import json
 from pathlib import Path
 import yaml
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 REPO_ROOT = Path(__file__).parent.parent
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "env"}
 
