@@ -1,0 +1,37 @@
+repro_version: '1'
+schema_version: '1'
+recorded_at: '2026-05-21T16:43:45Z'
+command:
+  argv:
+  - C:/Users/baybo/AppData/Local/Programs/Python/Python312/python.exe
+  - scripts/c2_validate.py
+  - --strict
+  cwd: .
+  timeout_s: 300
+  capture: full
+inputs:
+- path: scripts\c2_validate.py
+  sha256: 96cedabdd405382a0f5583a31d8e213a41378d36e07fe804169b54eaaf84ec7f
+env:
+  python:
+    implementation: CPython
+    version: 3.12.10
+    executable: C:\Users\baybo\AppData\Local\Programs\Python\Python312\python.exe
+  platform: Windows-11-10.0.29591-SP0
+  pip_freeze_sha256: 7dde9d0e96ec6cb6470bc22056b32803b24ff9e23c2a9ecbf4b24e1d4144049d
+git:
+  head: ff0cd5028387808b86b16d6250039b090ce13de9
+  dirty: true
+result:
+  status: ok
+  exit_code: 0
+  duration_s: 0.578
+  stdout:
+    sha256: 908ef5d26579f928c86eb42771d619a2fc71d6e746202a817c29472f1c448ab6
+    bytes: 4687
+    text: "============================================================\r\n  C2 ARENA VALIDATOR v2\r\n============================================================\r\n\r\n=== Kiểm tra root files ===\r\n  [OK]    README.md\r\n  [OK]    AGENT_START_HERE.md\r\n  [OK]    C2_CHARTER.md\r\n  [OK]    C2_PHILOSOPHY.md\r\n  [OK]    C2_LAWS.md\r\n  [OK]    ARENA_PROTOCOL.md\r\n  [OK]    SCORE_RULES.md\r\n  [OK]    SECURITY.md\r\n  [OK]    SAFETY_BOUNDARIES.md\r\n  [OK]    GOVERNANCE.md\r\n  [OK]    CONTRIBUTING.md\r\n  [OK]    CODE_OF_CONDUCT.md\r\n  [OK]    LICENSE_DECISION.md\r\n  [OK]    .gitignore\r\n\r\n=== Kiểm tra thư mục ===\r\n  [OK]    .github/\r\n  [OK]    .github/workflows/\r\n  [OK]    .github/ISSUE_TEMPLATE/\r\n  [OK]    docs/\r\n  [OK]    docs/architecture/\r\n  [OK]    docs/philosophy/\r\n  [OK]    waste/\r\n  [OK]    waste/inbox/\r\n  [OK]    waste/normalized/\r\n  [OK]    waste/quarantine/\r\n  [OK]    arena/\r\n  [OK]    arena/active/\r\n  [OK]    arena/sessions/\r\n  [OK]    vault/\r\n  [OK]    vault/technologies/\r\n  [OK]    vault/challenges/\r\n  [OK]    vault/crowns/\r\n  [OK]    vault/retired/\r\n  [OK]    templates/\r\n  [OK]    templates/technology/\r\n  [OK]    templates/challenge/\r\n  [OK]    templates/session/\r\n  [OK]    schemas/\r\n  [OK]    scripts/\r\n  [OK]    proposals/\r\n  [OK]    proposals/law_changes/\r\n  [OK]    proposals/arena_upgrades/\r\n  [OK]    proposals/security_changes/\r\n  [OK]    reports/\r\n  [OK]    tests/\r\n\r\n=== Kiểm tra doc files bắt buộc ===\r\n  [OK]    docs/architecture/system-overview.md\r\n  [OK]    docs/architecture/threat-model.md\r\n  [OK]    docs/architecture/repository-map.md\r\n  [OK]    docs/architecture/data-flow.md\r\n  [OK]    docs/philosophy/c2-waste-to-gold.md\r\n  [OK]    docs/philosophy/look-up-to-future-ai.md\r\n  [OK]    docs/philosophy/ego-vs-proof.md\r\n  [OK]    docs/glossary.md\r\n  [OK]    docs/faq.md\r\n  [OK]    reports/FOUNDATION_SUMMARY.md\r\n\r\n=== Kiểm tra .gitignore ===\r\n  [OK]    .gitignore có: .env\r\n  [OK]    .gitignore có: *.key\r\n  [OK]    .gitignore có: *.pem\r\n  [OK]    .gitignore có: __pycache__\r\n  [OK]    .gitignore có: .venv\r\n  [OK]    .gitignore có: node_modules\r\n  [OK]    .gitignore có: .idea/\r\n\r\n=== Kiểm tra YAML/JSON parse toàn repo ===\r\n  [OK]    Đã parse 29 file YAML/JSON không lỗi\r\n\r\n=== Kiểm tra templates ===\r\n  [OK]    templates/technology/manifest.yaml\r\n  [OK]    templates/technology/idea.md\r\n  [OK]    templates/technology/architecture.md\r\n  [OK]    templates/technology/self_critique.md\r\n  [OK]    templates/technology/risk_assessment.md\r\n  [OK]    templates/technology/scorecard.md\r\n  [OK]    templates/technology/report.md\r\n  [OK]    templates/technology/challenge_to_future_agents.md\r\n  [OK]    templates/technology/agent_signature.md\r\n  [OK]    templates/challenge/challenge_manifest.yaml\r\n  [OK]    templates/challenge/target_analysis.md\r\n  [OK]    templates/challenge/upgrade_plan.md\r\n  [OK]    templates/challenge/delta_report.md\r\n  [OK]    templates/challenge/self_critique.md\r\n  [OK]    templates/challenge/risk_assessment.md\r\n  [OK]    templates/challenge/report.md\r\n  [OK]    templates/session/session_manifest.yaml\r\n  [OK]    templates/session/working_notes.md\r\n  [OK]    templates/session/decision_log.md\r\n  [OK]    templates/session/REPORT_TO_C2.md\r\n\r\n=== Kiểm tra vault/technologies ===\r\n\r\n  -- Technology: T000001-repro --\r\n    -- Version: v1 --\r\n  [OK]        manifest.yaml\r\n  [OK]        idea.md\r\n  [OK]        architecture.md\r\n  [OK]        self_critique.md\r\n  [OK]        risk_assessment.md\r\n  [OK]        scorecard.md\r\n  [OK]        report.md\r\n  [OK]        challenge_to_future_agents.md\r\n  [OK]        agent_signature.md\r\n  [OK]        diagrams/\r\n  [OK]        src/\r\n  [OK]        tests/\r\n  [OK]        evidence/\r\n  [OK]        schema OK (technology_manifest.schema.json)\r\n  [OK]        safety.class = S2\r\n  [OK]        score = 6.4/8.0\r\n  [OK]        challenge_reserve = 2.0\r\n  [OK]        lineage.waste_sources = ['W000001']\r\
+      \n  [OK]        self_critique.md có 12 điểm\r\n\r\n=== Kiểm tra vault/challenges ===\r\n  [OK]    vault/challenges/ trống (bình thường với kho mới)\r\n\r\n=== Kiểm tra waste index + waste items (H) ===\r\n  [OK]    waste/index.yaml hợp lệ\r\n  [OK]        schema OK (waste_item.schema.json)\r\n  [OK]        schema OK (waste_item.schema.json)\r\n  [OK]    Đã validate 2 waste item(s) theo schema\r\n\r\n=== Kiểm tra arena/sessions (R) ===\r\n  [OK]    arena/sessions/S20260521-001-claude-opus-4-7: REPORT_TO_C2.md có\r\n\r\n=== Kiểm tra crown registry ===\r\n  [OK]    CROWN_REGISTRY.yaml hợp lệ\r\n\r\n============================================================\r\n  Kết quả: 0 lỗi, 0 cảnh báo\r\n============================================================\r\n\r\n[PASS] Validator thành công.\r\n"
+  stderr:
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    bytes: 0
+    text: ''

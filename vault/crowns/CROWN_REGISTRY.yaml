@@ -1,72 +1,72 @@
-last_updated: "2026-05-15"
 domains:
-  algorithm:
-    current_holder:
-      technology_id: null
-      version: null
-      arena_score: 0.0
-      since: null
-    history: []
   ai-tooling:
     current_holder:
-      technology_id: null
-      version: null
       arena_score: 0.0
       since: null
+      technology_id: null
+      version: null
     history: []
-  developer-tool:
+  algorithm:
     current_holder:
-      technology_id: null
-      version: null
       arena_score: 0.0
       since: null
-    history: []
-  data-system:
-    current_holder:
       technology_id: null
       version: null
-      arena_score: 0.0
-      since: null
-    history: []
-  simulation:
-    current_holder:
-      technology_id: null
-      version: null
-      arena_score: 0.0
-      since: null
-    history: []
-  security-defense:
-    current_holder:
-      technology_id: null
-      version: null
-      arena_score: 0.0
-      since: null
-    history: []
-  creative-media-safe:
-    current_holder:
-      technology_id: null
-      version: null
-      arena_score: 0.0
-      since: null
-    history: []
-  education:
-    current_holder:
-      technology_id: null
-      version: null
-      arena_score: 0.0
-      since: null
-    history: []
-  automation-safe:
-    current_holder:
-      technology_id: null
-      version: null
-      arena_score: 0.0
-      since: null
     history: []
   architecture-pattern:
     current_holder:
-      technology_id: null
-      version: null
       arena_score: 0.0
       since: null
+      technology_id: null
+      version: null
     history: []
+  automation-safe:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+  creative-media-safe:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+  data-system:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+  developer-tool:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+  education:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+  security-defense:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+  simulation:
+    current_holder:
+      arena_score: 0.0
+      since: null
+      technology_id: null
+      version: null
+    history: []
+last_updated: '2026-05-21'

@@ -1,0 +1,30 @@
+id: W000001
+title: "Idea: reproducible evidence recorder for command outputs"
+added_at: "2026-05-21"
+added_by: "claude-opus-4-7"
+source_type: idea
+license_status: internal-example
+hazard_tags:
+  - safe
+  - needs-review
+summary: >
+  Synthesized from analysis of C2_LAWS Luật 5 (báo cáo trung thực) and
+  Luật 9 (không che giấu điểm yếu). The C2 Arena mandates evidence in
+  `evidence/` but does not yet define a tamper-evident, machine-verifiable
+  format. A submitter can drop arbitrary text into evidence/ and an auditor
+  has no way to confirm the text is actually the output of a specific
+  command run against a specific repo state. This waste item captures the
+  idea for an S2 tool that records (command, stdout, stderr, exit, env
+  hash, input file hashes, git HEAD, timestamp) into a structured
+  `.repro.yaml` artifact, plus a verifier that replays the command and
+  flags drift, plus an auditor that scans `evidence/` for repro records.
+  The tool is meta — the C2 system uses it on its own validators to
+  produce checkable evidence of validator runs.
+allowed_use: full-use
+notes: >
+  This item is an IDEA, not raw rácmaterial. The synthesis was performed
+  by analyzing repository files only — no external content was ingested.
+  The idea is safe (no malware, no PII, no copyright concerns). The
+  resulting technology must declare safety class honestly: because it
+  executes arbitrary subprocess commands at user's request, it sits at
+  S2 (limited system permissions) per SAFETY_BOUNDARIES.md, not S1.

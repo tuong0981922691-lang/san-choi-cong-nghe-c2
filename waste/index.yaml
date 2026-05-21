@@ -1,5 +1,5 @@
-last_updated: "2026-05-15"
-total_items: 1
+last_updated: "2026-05-21"
+total_items: 2
 items:
   - id: W000000
     title: "Example waste item"
@@ -10,3 +10,17 @@ items:
     summary: "Ví dụ minh họa cấu trúc waste item. Không phải nguyên liệu thật."
     allowed_use: template-only
     path: waste/examples/W000000-example.yaml
+  - id: W000001
+    title: "Idea: reproducible evidence recorder for command outputs"
+    source_type: idea
+    license_status: internal-example
+    hazard_tags:
+      - safe
+      - needs-review
+    summary: >
+      Idea for an S2 tool that records command runs into structured
+      .repro.yaml artifacts so evidence in evidence/ becomes tamper-
+      evident and machine-verifiable. Synthesized from C2_LAWS Luật 5
+      and Luật 9.
+    allowed_use: full-use
+    path: waste/normalized/W000001-evidence-recorder.yaml

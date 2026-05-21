@@ -1,0 +1,37 @@
+%% Threat model — what the tool DOES and DOES NOT defend against.
+%% Green = defended; orange = partial; red = NOT defended (caller's job).
+flowchart TB
+    classDef defended fill:#d4edda,stroke:#155724,color:#155724;
+    classDef partial fill:#fff3cd,stroke:#856404,color:#856404;
+    classDef undefended fill:#f8d7da,stroke:#721c24,color:#721c24;
+
+    A["Submitter writes fake<br/>evidence into evidence/"]:::defended
+    A1["Auditor sees no .repro.yaml<br/>→ flags as suspicious"]:::defended
+
+    B["Submitter forges a<br/>.repro.yaml by hand"]:::partial
+    B1["repro verify replays cmd<br/>→ drift if command<br/>output doesn't match<br/>stored hash"]:::partial
+    B2["Limitation: if attacker also<br/>controls the command<br/>(deterministic + tame),<br/>they can fabricate matching<br/>hashes"]:::undefended
+
+    C["Source code silently<br/>changed after recording"]:::defended
+    C1["repro verify re-hashes<br/>declared inputs<br/>→ flags drift"]:::defended
+
+    D["Tampered .repro.yaml<br/>after the fact"]:::undefended
+    D1["No crypto signature in v1<br/>→ MUST commit .repro.yaml<br/>to git for tamper-evidence"]:::undefended
+
+    E["Replay triggers side effect<br/>(rm -rf, network call,<br/>git push)"]:::undefended
+    E1["No sandbox in v1<br/>→ caller must NOT verify<br/>untrusted records<br/>(documented in self_critique #4)"]:::undefended
+
+    F["Env drift breaks reproducibility<br/>(different Python, deps)"]:::partial
+    F1["env.pip_freeze_sha256<br/>+ python_version<br/>→ surfaces drift but<br/>cannot prevent it"]:::partial
+
+    G["Implicit dependency<br/>(filesystem reads not<br/>declared in --input)"]:::undefended
+    G1["Caller must declare<br/>all inputs;<br/>tool cannot enforce"]:::undefended
+
+    A --> A1
+    B --> B1
+    B --> B2
+    C --> C1
+    D --> D1
+    E --> E1
+    F --> F1
+    G --> G1

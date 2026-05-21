@@ -1,0 +1,35 @@
+repro_version: '1'
+schema_version: '1'
+recorded_at: '2026-05-21T16:43:47Z'
+command:
+  argv:
+  - C:/Users/baybo/AppData/Local/Programs/Python/Python312/python.exe
+  - scripts/c2_score_check.py
+  cwd: .
+  timeout_s: 300
+  capture: full
+inputs:
+- path: scripts\c2_score_check.py
+  sha256: ce132b1b761b29efdbcecfdaab21f6416fe5841372e2e78665f5b1dd6fc3fc7a
+env:
+  python:
+    implementation: CPython
+    version: 3.12.10
+    executable: C:\Users\baybo\AppData\Local\Programs\Python\Python312\python.exe
+  platform: Windows-11-10.0.29591-SP0
+  pip_freeze_sha256: 7dde9d0e96ec6cb6470bc22056b32803b24ff9e23c2a9ecbf4b24e1d4144049d
+git:
+  head: ff0cd5028387808b86b16d6250039b090ce13de9
+  dirty: true
+result:
+  status: ok
+  exit_code: 0
+  duration_s: 0.172
+  stdout:
+    sha256: 4a473425c0007e6f25b6e88be2ad040e5c4c072638e84b84f292154a3a2cae7b
+    bytes: 880
+    text: "============================================================\r\n  C2 SCORE CHECKER v2 (full-repo, anti-lach)\r\n============================================================\r\n\r\n=== Quét toàn bộ repo (full-repo scan) ===\r\n  [OK]    templates\\challenge\\challenge_manifest.yaml: delta = +0.5\r\n  [OK]    templates\\technology\\manifest.yaml: base_score = 0.0/8.0\r\n  [OK]    templates\\technology\\scorecard.md: score = 0.0/8.0\r\n  [OK]    vault\\technologies\\T000001-repro\\versions\\v1\\manifest.yaml: base_score = 6.4/8.0\r\n  [OK]    vault\\technologies\\T000001-repro\\versions\\v1\\scorecard.md: score = 6.9/8.0\r\n  [OK]    Đã quét: 2 manifest.yaml, 1 challenge_manifest.yaml, 2 scorecard.md\r\n\r\n============================================================\r\n  Kết quả: 0 lỗi, 0 cảnh báo\r\n============================================================\r\n\r\n[PASS] Score check thành công.\r\n"
+  stderr:
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    bytes: 0
+    text: ''
