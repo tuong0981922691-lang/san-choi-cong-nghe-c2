@@ -2,6 +2,7 @@
 """
 C2 Score Checker v2
 Quét toàn repo. Không cho lách điểm bằng string, 10/10, hoặc YAML lỗi.
+PATCH 2: Clean markdown code blocks and HTML comments before checking
 """
 
 import sys
@@ -128,7 +129,17 @@ def check_challenge_manifest_file(manifest_path: Path):
         err(f"{rel}: proposed_new_score={new_score} > 10.0")
 
 
+def clean_markdown_and_html(content: str) -> str:
+    """PATCH 2: Remove code blocks and HTML comments before scanning."""
+    # Remove code blocks (``` ... ```)
+    content = re.sub(r'```[^`]*```', '', content, flags=re.DOTALL)
+    # Remove HTML comments (<!-- ... -->)
+    content = re.sub(r'<!--[^-]*-->', '', content, flags=re.DOTALL)
+    return content
+
+
 def check_scorecard_file(scorecard_path: Path):
+    """PATCH 2: Strip code blocks and HTML comments before checking score."""
     rel = scorecard_path.relative_to(REPO_ROOT)
     try:
         content = scorecard_path.read_text(encoding="utf-8")
@@ -136,7 +147,10 @@ def check_scorecard_file(scorecard_path: Path):
         warn(f"Không đọc được {rel}: {e}")
         return
 
-    match = re.search(r'self_declared_base_score\s*:\s*([0-9]+\.?[0-9]*)', content)
+    # PATCH 2: Clean markdown code blocks and HTML comments first
+    cleaned_content = clean_markdown_and_html(content)
+    
+    match = re.search(r'self_declared_base_score\s*:\s*([0-9]+\.?[0-9]*)', cleaned_content)
     if match:
         score = parse_score(match.group(1), "self_declared_base_score", rel)
         if score is not None:
@@ -149,7 +163,7 @@ def check_scorecard_file(scorecard_path: Path):
     is_law_doc = any(kw in first_300 for kw in ["forbidden", "bị cấm", "vi phạm", "không được", "example", "template"])
 
     for pattern, label in FORBIDDEN_SELF_CLAIM_PATTERNS:
-        if re.search(pattern, content):
+        if re.search(pattern, cleaned_content):
             if not is_law_doc:
                 err(f"{rel}: chứa '{label}' như điểm tự thân — vi phạm")
 
