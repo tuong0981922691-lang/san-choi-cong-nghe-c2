@@ -2,6 +2,9 @@
 """
 C2 Arena Validator
 Kiểm định cấu trúc repo và submission theo luật C2.
+PATCH 1: Fail-Closed schema validation
+PATCH 3: Non-empty challenges
+PATCH 4: Required files check
 """
 
 import sys
@@ -34,6 +37,8 @@ REQUIRED_ROOT_FILES = [
     "CODE_OF_CONDUCT.md",
     "LICENSE_DECISION.md",
     ".gitignore",
+    "scripts/c2_parse_check.py",
+    "scripts/requirements.txt",
 ]
 
 REQUIRED_DIRS = [
@@ -227,7 +232,7 @@ def check_gitignore():
         err(".gitignore không tồn tại")
         return
     content = gi.read_text(encoding="utf-8")
-    for pattern in [".env", "*.key", "*.pem", "__pycache__", ".venv", "node_modules", ".idea/"]:
+    for pattern in [".env", "*.key", "*.pem", "__pycache__", ".venv", "node_modules", ".idea/", ".vscode/"]:
         if pattern in content:
             ok(f".gitignore có: {pattern}")
         else:
@@ -252,11 +257,14 @@ def load_schema(schema_name: str):
 
 
 def validate_against_schema(data: dict, schema_name: str, context: str) -> bool:
-    """Validate dict data theo JSON schema. Trả về True nếu hợp lệ."""
+    """Validate dict data theo JSON schema. Trả về True nếu hợp lệ.
+    
+    PATCH 1: Fail-Closed behavior - nếu schema không tồn tại, bắt buộc return False.
+    """
     schema = load_schema(schema_name)
     if schema is None:
-        warn(f"{context}: không load được schema {schema_name} — bỏ qua validate")
-        return True
+        err(f"{context}: LỖI BẢO MẬT - Không load được schema {schema_name}. Hủy validate.")
+        return False  # PATCH 1: Changed from return True to return False
     try:
         jsonschema.validate(instance=data, schema=schema)
         ok(f"    schema OK ({schema_name})")
@@ -500,6 +508,7 @@ def scan_secrets(file_path: Path):
 
 
 def check_challenges():
+    """PATCH 3: Check that challenges have actual content in src/ and tests/ dirs."""
     print("\n=== Kiểm tra vault/challenges ===")
     challenges_dir = REPO_ROOT / "vault" / "challenges"
     if not challenges_dir.is_dir():
@@ -522,6 +531,18 @@ def check_challenges():
                 ok(f"    {d}/")
             else:
                 err(f"{c.name}: thiếu thư mục {d}/")
+        
+        # PATCH 3: Check that src/ and tests/ are not empty (cannot just have .gitkeep)
+        src_dir = c / "src"
+        tests_dir = c / "tests"
+        src_files = [f for f in src_dir.iterdir() if f.name != ".gitkeep"] if src_dir.is_dir() else []
+        tests_files = [f for f in tests_dir.iterdir() if f.name not in (".gitkeep", "README.md")] if tests_dir.is_dir() else []
+        
+        if not src_files:
+            err(f"{c.name}: src/ không có file thực — Challenge trống")
+        if not tests_files:
+            err(f"{c.name}: tests/ không có file thực — thiếu bằng chứng")
+        
         cm = c / "challenge_manifest.yaml"
         if cm.exists():
             cm_data = load_yaml_file(cm)
