@@ -1,0 +1,35 @@
+repro_version: '1'
+schema_version: '1'
+recorded_at: '2026-05-21T16:43:50Z'
+command:
+  argv:
+  - C:/Users/baybo/AppData/Local/Programs/Python/Python312/python.exe
+  - scripts/c2_parse_check.py
+  cwd: .
+  timeout_s: 300
+  capture: full
+inputs:
+- path: scripts\c2_parse_check.py
+  sha256: 2e45cc0e57ffd6b6a7cf4de2d27317d679601f456fb8820ddb9bb3b62721f354
+env:
+  python:
+    implementation: CPython
+    version: 3.12.10
+    executable: C:\Users\baybo\AppData\Local\Programs\Python\Python312\python.exe
+  platform: Windows-11-10.0.29591-SP0
+  pip_freeze_sha256: 7dde9d0e96ec6cb6470bc22056b32803b24ff9e23c2a9ecbf4b24e1d4144049d
+git:
+  head: ff0cd5028387808b86b16d6250039b090ce13de9
+  dirty: true
+result:
+  status: ok
+  exit_code: 0
+  duration_s: 0.282
+  stdout:
+    sha256: bad9fb25f3f90662ea99d8964222554aec9cf63e54199579c6f85823b92e8b35
+    bytes: 235
+    text: "============================================================\r\n  C2 YAML/JSON PARSE CHECKER\r\n============================================================\r\n\r\n  Đã kiểm tra: 29 file YAML/JSON\r\n\r\n[PASS] Tất cả YAML/JSON parse OK.\r\n"
+  stderr:
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    bytes: 0
+    text: ''

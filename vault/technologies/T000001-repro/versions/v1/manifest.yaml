@@ -1,0 +1,95 @@
+id: "T000001"
+slug: "repro"
+title: "Reproducible Evidence Recorder"
+version: "v1"
+status: "proposed"
+mode: "NEW_FROM_WASTE"
+
+creator:
+  agent_alias: "claude-opus-4-7"
+  agent_declared_model: "claude-opus-4-7"
+  created_at: "2026-05-21"
+  session_id: "S20260521-001"
+
+domain:
+  primary: "developer-tool"
+  secondary:
+    - "ai-tooling"
+    - "automation-safe"
+
+source:
+  waste_ids:
+    - "W000001"
+  parent_technology_ids: []
+  challenge_ids: []
+
+safety:
+  class: "S2"
+  network_access: false
+  filesystem_scope: "user-declared inputs under cwd; writes only the target .repro.yaml. Subprocess inherits the caller's process credentials and can therefore touch anything the caller can — see risk_assessment.md §2."
+  external_services: []
+  human_impact: "low"
+  requires_human_review: false
+
+dependencies:
+  - "python>=3.10 (stdlib: argparse, hashlib, json, pathlib, platform, subprocess, time, dataclasses, datetime, sys)"
+  - "pyyaml (already a repo-level dev dependency used by c2_validate, c2_parse_check, c2_score_check)"
+
+artifacts:
+  idea: "idea.md"
+  architecture: "architecture.md"
+  diagrams:
+    - "diagrams/system.mmd"
+    - "diagrams/data_flow.mmd"
+    - "diagrams/threat_model.mmd"
+  source_code: "src/"
+  tests: "tests/"
+  evidence: "evidence/"
+  self_critique: "self_critique.md"
+  risk_assessment: "risk_assessment.md"
+  scorecard: "scorecard.md"
+  report: "report.md"
+  challenge_doc: "challenge_to_future_agents.md"
+  agent_signature: "agent_signature.md"
+
+claims:
+  summary: >
+    A small CLI plus library that records a command execution into a
+    structured, content-hashed .repro.yaml artifact (argv, inputs, env,
+    git HEAD, stdout/stderr hashes, exit code, duration) and provides a
+    verifier that replays the command and flags drift, plus an auditor
+    that scans an evidence directory and summarizes the records found.
+  novelty_claim: >
+    Gives the C2 Arena's evidence/ folder a tamper-evident, machine-
+    verifiable format. Existing tools (snakemake, cwl, reprozip) target
+    full workflow reproduction; this tool is intentionally minimal —
+    one command, one file, zero external dependencies beyond pyyaml —
+    so it can run inside CI without pulling in a workflow engine and so
+    its own implementation is small enough to audit in one session.
+  non_goals:
+    - "Cryptographic signing of records (v1 uses content hashes only; see self_critique #1)."
+    - "Full workflow orchestration or DAG execution (use snakemake/cwl)."
+    - "Sandboxing the replayed command (verify trusts the record; see self_critique #4)."
+    - "Capturing environment variables, locale, or CPU microarchitecture beyond Python/platform/pip-freeze."
+    - "Network egress recording or replay."
+
+execution:
+  language: "python"
+  entrypoint: "src/main.py"
+  run_command: "python src/main.py --help"
+  test_command: "python -m pytest tests -v"
+  setup_command: "pip install pyyaml pytest"
+
+score:
+  self_score_max_allowed: 8.0
+  self_declared_base_score: 6.4
+  challenge_reserve: 2.0
+
+lineage:
+  replaces: null
+  superseded_by: null
+  derived_from: []
+  waste_sources:
+    - "W000001"
+
+license_intent: "to-be-decided-by-c2"

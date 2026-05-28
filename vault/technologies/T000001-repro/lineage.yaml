@@ -1,0 +1,22 @@
+technology_id: "T000001"
+slug: "repro"
+created_at: "2026-05-21"
+current_version: "v1"
+
+versions:
+  - version: "v1"
+    created_at: "2026-05-21"
+    created_in_session: "S20260521-001"
+    status: "proposed"
+    parent_version: null
+    replaces: null
+    summary: >
+      Initial implementation. NEW_FROM_WASTE from W000001
+      (synthesized idea from C2_LAWS Luật 5 + Luật 9). Provides
+      record/verify/audit subcommands for tamper-evident
+      command-execution records. Stdlib + pyyaml only. S2.
+
+challenges:
+  accepted: []
+  pending: []
+  rejected: []

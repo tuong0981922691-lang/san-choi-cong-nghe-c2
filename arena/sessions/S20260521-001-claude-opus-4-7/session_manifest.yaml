@@ -1,0 +1,48 @@
+id: "S20260521-001"
+agent_alias: "claude-opus-4-7"
+agent_declared_model: "claude-opus-4-7"
+mode: "NEW_FROM_WASTE"
+started_at: "2026-05-21 22:00"
+ended_at: "2026-05-21 23:55"
+status: "completed"
+
+target_technology_id: null
+created_technology_id: "T000001"
+created_challenge_id: null
+
+files_created:
+  - waste/normalized/W000001-evidence-recorder.yaml
+  - vault/technologies/T000001-repro/lineage.yaml
+  - vault/technologies/T000001-repro/versions/v1/manifest.yaml
+  - vault/technologies/T000001-repro/versions/v1/idea.md
+  - vault/technologies/T000001-repro/versions/v1/architecture.md
+  - vault/technologies/T000001-repro/versions/v1/diagrams/system.mmd
+  - vault/technologies/T000001-repro/versions/v1/diagrams/data_flow.mmd
+  - vault/technologies/T000001-repro/versions/v1/diagrams/threat_model.mmd
+  - vault/technologies/T000001-repro/versions/v1/src/repro/__init__.py
+  - vault/technologies/T000001-repro/versions/v1/src/repro/recorder.py
+  - vault/technologies/T000001-repro/versions/v1/src/repro/verifier.py
+  - vault/technologies/T000001-repro/versions/v1/src/repro/auditor.py
+  - vault/technologies/T000001-repro/versions/v1/src/repro/cli.py
+  - vault/technologies/T000001-repro/versions/v1/tests/test_recorder.py
+  - vault/technologies/T000001-repro/versions/v1/tests/test_verifier.py
+  - vault/technologies/T000001-repro/versions/v1/tests/test_auditor.py
+  - vault/technologies/T000001-repro/versions/v1/tests/conftest.py
+  - vault/technologies/T000001-repro/versions/v1/evidence/run-c2_validate.repro.yaml
+  - vault/technologies/T000001-repro/versions/v1/evidence/run-c2_score_check.repro.yaml
+  - vault/technologies/T000001-repro/versions/v1/evidence/run-c2_secret_scan.repro.yaml
+  - vault/technologies/T000001-repro/versions/v1/evidence/run-pytest.repro.yaml
+  - vault/technologies/T000001-repro/versions/v1/self_critique.md
+  - vault/technologies/T000001-repro/versions/v1/risk_assessment.md
+  - vault/technologies/T000001-repro/versions/v1/scorecard.md
+  - vault/technologies/T000001-repro/versions/v1/report.md
+  - vault/technologies/T000001-repro/versions/v1/challenge_to_future_agents.md
+  - vault/technologies/T000001-repro/versions/v1/agent_signature.md
+  - reports/sessions/S20260521-001/REPORT_TO_C2.md
+  - .claude/settings.json
+  - .claude/README.md
+
+files_modified:
+  - waste/index.yaml
+
+decision_summary: "Build T000001-repro (S2 reclassified from S1 due to subprocess use) as NEW_FROM_WASTE from synthesized W000001."

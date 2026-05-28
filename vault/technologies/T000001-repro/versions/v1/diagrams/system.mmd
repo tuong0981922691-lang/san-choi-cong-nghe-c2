@@ -1,0 +1,50 @@
+%% System diagram for T000001-repro
+%% Shows the module breakdown and external dependencies.
+flowchart TB
+    subgraph "repro package (src/repro/)"
+        CLI["cli.py<br/>argparse, dispatch"]
+        REC["recorder.py<br/>record(argv, inputs, …)<br/>→ dict"]
+        VER["verifier.py<br/>verify(path)<br/>→ VerifyResult"]
+        AUD["auditor.py<br/>audit(dir)<br/>→ AuditReport"]
+        ENV["_env.py<br/>collect_env()"]
+        GIT["_git.py<br/>collect_git()"]
+        HASH["_hash.py<br/>file/text/canonical<br/>SHA-256"]
+    end
+
+    subgraph "stdlib + pyyaml"
+        SP["subprocess.run<br/>(import-renamed)"]
+        YAML["yaml.safe_dump<br/>yaml.safe_load"]
+        HASHLIB["hashlib.sha256"]
+        PLAT["platform"]
+        TIME["time, datetime"]
+    end
+
+    subgraph "external"
+        UCMD["user-provided<br/>command + argv"]
+        GITBIN[/"git binary<br/>(optional)"/]
+        PIP[/"python -m pip freeze<br/>(optional)"/]
+        FS[("filesystem<br/>(input files,<br/>output .repro.yaml)")]
+    end
+
+    CLI --> REC
+    CLI --> VER
+    CLI --> AUD
+    VER --> REC
+    REC --> ENV
+    REC --> GIT
+    REC --> HASH
+    ENV --> SP
+    ENV --> PIP
+    GIT --> SP
+    GIT --> GITBIN
+    REC --> SP
+    SP --> UCMD
+    REC --> YAML
+    AUD --> YAML
+    VER --> YAML
+    REC --> FS
+    AUD --> FS
+    VER --> FS
+    HASH --> HASHLIB
+    ENV --> PLAT
+    REC --> TIME

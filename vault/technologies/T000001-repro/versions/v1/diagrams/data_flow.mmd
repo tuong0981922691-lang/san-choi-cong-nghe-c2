@@ -1,0 +1,36 @@
+%% Data flow for T000001-repro
+%% Two flows: RECORD (left → right) and VERIFY (loop).
+sequenceDiagram
+    autonumber
+    participant U as User / CI
+    participant C as repro CLI
+    participant R as recorder.record()
+    participant E as _env / _git
+    participant S as subprocess (target cmd)
+    participant FS as filesystem
+
+    %% --- RECORD flow ---
+    U->>C: repro record --input X --output run.repro.yaml -- cmd ...
+    C->>R: record(argv, inputs=[X], …)
+    R->>FS: hash declared inputs (sha256(X))
+    R->>E: collect_env(), collect_git()
+    E-->>R: env + git fingerprint
+    R->>S: spawn argv via subprocess.run (PIPE)
+    S-->>R: stdout, stderr, exit_code, duration
+    R->>R: sha256(stdout), sha256(stderr)
+    R-->>C: record dict
+    C->>FS: yaml.safe_dump → run.repro.yaml
+
+    %% --- VERIFY flow (later session) ---
+    U->>C: repro verify run.repro.yaml
+    C->>R: read & parse run.repro.yaml
+    R->>FS: re-hash declared inputs
+    alt input hashes match
+        R->>S: re-spawn argv
+        S-->>R: replay stdout, stderr, exit_code
+        R->>R: compare sha256 vs stored
+        R-->>C: VerifyResult(ok=True/False, drifts=[…])
+    else input hash mismatch
+        R-->>C: VerifyResult(ok=False, drifts=["input changed: …"])
+    end
+    C-->>U: exit 0 (OK) or 1 (DRIFT, prints diffs)
